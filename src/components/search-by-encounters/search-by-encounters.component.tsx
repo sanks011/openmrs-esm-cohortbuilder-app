@@ -1,45 +1,33 @@
-import React, { useState } from "react";
-
-import {
-  DatePicker,
-  DatePickerInput,
-  Column,
-  NumberInput,
-  MultiSelect,
-} from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
-import dayjs from "dayjs";
-import { useTranslation } from "react-i18next";
-
-import { useLocations } from "../../cohort-builder.resources";
-import { SearchByProps, DropdownValue } from "../../types";
-import SearchButtonSet from "../search-button-set/search-button-set";
-import { useEncounterTypes, useForms } from "./search-by-encounters.resources";
-import styles from "./search-by-encounters.style.scss";
-import { getDescription, getQueryDetails } from "./search-by-encounters.utils";
+import React, { useState } from 'react';
+import dayjs from 'dayjs';
+import { DatePicker, DatePickerInput, Column, NumberInput, MultiSelect } from '@carbon/react';
+import { useTranslation } from 'react-i18next';
+import { showToast } from '@openmrs/esm-framework';
+import { useLocations } from '../../cohort-builder.resources';
+import type { SearchByProps, DropdownValue } from '../../types';
+import { getDescription, getQueryDetails } from './search-by-encounters.utils';
+import { useEncounterTypes, useForms } from './search-by-encounters.resources';
+import SearchButtonSet from '../search-button-set/search-button-set';
+import styles from './search-by-encounters.style.scss';
 
 const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const [atLeastCount, setAtLeastCount] = useState(0);
   const [atMostCount, setAtMostCount] = useState(0);
   const { encounterTypes, encounterTypesError } = useEncounterTypes();
-  const [selectedEncounterTypes, setSelectedEncounterTypes] = useState<
-    DropdownValue[]
-  >([]);
-  const [encounterLocations, setEncounterLocations] = useState<DropdownValue[]>(
-    []
-  );
+  const [selectedEncounterTypes, setSelectedEncounterTypes] = useState<DropdownValue[]>([]);
+  const [encounterLocations, setEncounterLocations] = useState<DropdownValue[]>([]);
   const [encounterForms, setEncounterForms] = useState<DropdownValue[]>([]);
   const { locations, locationsError } = useLocations();
   const { forms, formsError } = useForms();
-  const [onOrBefore, setOnOrBefore] = useState("");
-  const [onOrAfter, setOnOrAfter] = useState("");
+  const [onOrBefore, setOnOrBefore] = useState('');
+  const [onOrAfter, setOnOrAfter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   if (locationsError) {
     showToast({
-      title: t("error", "Error"),
-      kind: "error",
+      title: t('error', 'Error'),
+      kind: 'error',
       critical: true,
       description: locationsError?.message,
     });
@@ -47,8 +35,8 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   if (formsError) {
     showToast({
-      title: t("error", "Error"),
-      kind: "error",
+      title: t('error', 'Error'),
+      kind: 'error',
       critical: true,
       description: formsError?.message,
     });
@@ -56,8 +44,8 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   if (encounterTypesError) {
     showToast({
-      title: t("error", "Error"),
-      kind: "error",
+      title: t('error', 'Error'),
+      kind: 'error',
       critical: true,
       description: encounterTypesError?.message,
     });
@@ -66,8 +54,8 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const reset = () => {
     setAtLeastCount(0);
     setAtMostCount(0);
-    setOnOrBefore("");
-    setOnOrAfter("");
+    setOnOrBefore('');
+    setOnOrAfter('');
   };
 
   const submit = async () => {
@@ -81,10 +69,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
       onOrBefore,
       selectedEncounterTypes,
     };
-    await onSubmit(
-      getQueryDetails(encounterDetails),
-      getDescription(encounterDetails)
-    );
+    await onSubmit(getQueryDetails(encounterDetails), getDescription(encounterDetails));
     setIsLoading(false);
   };
 
@@ -97,7 +82,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid="encounters"
             onChange={(data) => setSelectedEncounterTypes(data.selectedItems)}
             items={encounterTypes}
-            label={t("selectEncounterTypes", "Select encounter types")}
+            label={t('selectEncounterTypes', 'Select encounter types')}
           />
         </div>
       </Column>
@@ -106,7 +91,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         data-testid="forms"
         onChange={(data) => setEncounterForms(data.selectedItems)}
         items={forms}
-        label={t("selectForms", "Select forms")}
+        label={t('selectForms', 'Select forms')}
       />
 
       <MultiSelect
@@ -114,7 +99,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         data-testid="locations"
         onChange={(data) => setEncounterLocations(data.selectedItems)}
         items={locations}
-        label={t("selectLocations", "Select locations")}
+        label={t('selectLocations', 'Select locations')}
       />
       <div className={styles.column}>
         <Column className={styles.encounterRange}>
@@ -123,7 +108,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               hideSteppers={true}
               id="atLeastCount"
               data-testid="atLeastCount"
-              label={t("atLeast", "at least")}
+              label={t('atLeast', 'at least')}
               min={0}
               size="sm"
               value={atLeastCount}
@@ -135,7 +120,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               hideSteppers={true}
               id="atMostCount"
               data-testid="atMostCount"
-              label={t("upto", "upto this many")}
+              label={t('upto', 'upto this many')}
               min={0}
               size="sm"
               value={atMostCount}
@@ -153,8 +138,8 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="onOrAfter"
-              labelText={t("from", "From")}
-              value={onOrAfter && dayjs(onOrAfter).format("DD-MM-YYYY")}
+              labelText={t('from', 'From')}
+              value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -168,19 +153,15 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="onOrBefore"
-              value={onOrBefore && dayjs(onOrBefore).format("DD-MM-YYYY")}
-              labelText={t("to", "to")}
+              value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
+              labelText={t('to', 'to')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
           </DatePicker>
         </Column>
       </div>
-      <SearchButtonSet
-        isLoading={isLoading}
-        onHandleSubmit={submit}
-        onHandleReset={reset}
-      />
+      <SearchButtonSet isLoading={isLoading} onHandleSubmit={submit} onHandleReset={reset} />
     </>
   );
 };

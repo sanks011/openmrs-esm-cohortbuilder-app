@@ -1,11 +1,6 @@
-import {
-  openmrsFetch,
-  FetchResponse,
-  restBaseUrl,
-} from "@openmrs/esm-framework";
-import useSWRImmutable from "swr/immutable";
-
-import { Patient, SearchParams, DropdownValue, Response } from "./types";
+import useSWRImmutable from 'swr/immutable';
+import { openmrsFetch, restBaseUrl, type FetchResponse } from '@openmrs/esm-framework';
+import type { Patient, SearchParams, DropdownValue, Response } from './types';
 
 /**
  * @param searchParams query details
@@ -19,10 +14,10 @@ export const search = async (searchParams: SearchParams) => {
   const searchResults: FetchResponse<SearchResults> = await openmrsFetch(
     `${restBaseUrl}/reportingrest/adhocquery?v=full`,
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: searchParams.query,
-    }
+    },
   );
   return searchResults;
 };
@@ -52,12 +47,9 @@ export const useLocations = () => {
 };
 
 export const getDataSet = async (queryID: string) => {
-  const results: FetchResponse<SearchResults> = await openmrsFetch(
-    `${restBaseUrl}/reportingrest/dataSet/${queryID}`,
-    {
-      method: "GET",
-    }
-  );
+  const results: FetchResponse<SearchResults> = await openmrsFetch(`${restBaseUrl}/reportingrest/dataSet/${queryID}`, {
+    method: 'GET',
+  });
 
   const dataset = results.data.rows.map((patient: Patient) => {
     patient.id = patient.patientId.toString();
@@ -70,12 +62,9 @@ export const getDataSet = async (queryID: string) => {
 };
 
 export const getCohortMembers = async (cohortId: string) => {
-  const results: FetchResponse<SearchResults> = await openmrsFetch(
-    `${restBaseUrl}/cohort/${cohortId}/member?v=full`,
-    {
-      method: "GET",
-    }
-  );
+  const results: FetchResponse<SearchResults> = await openmrsFetch(`${restBaseUrl}/cohort/${cohortId}/member?v=full`, {
+    method: 'GET',
+  });
 
   const dataset = results.data.rows.map((patient: Patient) => {
     patient.id = patient.patientId.toString();
