@@ -40,8 +40,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
-      
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json', 'e2e/support/bamboo/playwright.Dockerfile') }}
+
       - name: Install Playwright Browsers
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium --with-deps
@@ -62,10 +62,11 @@ jobs:
         if: "!cancelled()"
         run: docker stop $(docker ps -a -q)
 
-      - name: Upload Report
-        uses: actions/upload-artifact@v3
-        if: always()
+      - name: 📤 Upload report
+        uses: actions/upload-artifact@v4
+        if: '!cancelled()'
         with:
           name: playwright-report
-          path: test-results/
+          path: playwright-report/
           retention-days: 30
+          overwrite: true
