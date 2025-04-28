@@ -11,7 +11,6 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -59,7 +58,7 @@ jobs:
         run: yarn playwright test
 
       - name: Stop dev server
-        if: "!cancelled()"
+        if: '!cancelled()'
         run: docker stop $(docker ps -a -q)
 
       - name: 📤 Upload report
