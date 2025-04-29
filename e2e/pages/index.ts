@@ -1,1 +1,1 @@
-export * from "./cohort-builder-page";
+export * from './cohort-builder-page';

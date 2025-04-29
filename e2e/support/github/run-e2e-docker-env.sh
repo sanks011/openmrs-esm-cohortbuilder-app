@@ -12,7 +12,7 @@ echo "Creating packed archive of the app..."
 packed_app_name=$(echo "$app_name" | tr '[:punct:]' '_');
 # run yarn pack for our app and add it to the working directory
 yarn pack -o "$working_dir/$packed_app_name.tgz" >/dev/null;
-echo "Created packed app archives" 
+echo "Created packed app archives"
 
 echo "Creating dynamic spa-assemble-config.json..."
 # dynamically assemble our list of frontend modules, prepending the login app and
