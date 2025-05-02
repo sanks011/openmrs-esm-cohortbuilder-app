@@ -17,6 +17,11 @@
 
 .loader {
   padding: layout.$spacing-04 layout.$spacing-03;
+  min-height: 4rem;
+
+  :global(.cds--inline-loading__text) {
+    color: colors.$gray-80;
+  }
 }
 
 .concept {

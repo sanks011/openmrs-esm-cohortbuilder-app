@@ -43,11 +43,11 @@ const CohortBuilder: React.FC = () => {
           setPatients(rows);
           addToHistory(queryDescription, rows, searchParams.query);
           showSnackbar({
-            title: t('success', 'Success!'),
+            title: t('searchCompleted', 'Search completed'),
             kind: 'success',
             isLowContrast: true,
-            subtitle: t('searchIsCompleted', `Search is completed with ${rows.length} result(s)`, {
-              numOfResults: rows.length,
+            subtitle: t('noOfResultsFound', '{{count}} results found', {
+              count: rows.length,
             }),
           });
           setIsHistoryUpdated(true);
@@ -70,11 +70,11 @@ const CohortBuilder: React.FC = () => {
       const patients = await getDataSet(queryId);
       setPatients(patients);
       showSnackbar({
-        title: t('success', 'Success!'),
+        title: t('searchCompleted', 'Search completed'),
         kind: 'success',
         isLowContrast: true,
-        subtitle: t('searchIsCompleted', `Search is completed with ${patients.length} result(s)`, {
-          numOfResults: patients.length,
+        subtitle: t('noOfResultsFound', '{{count}} results found', {
+          count: patients.length,
         }),
       });
     } catch (error) {
@@ -92,11 +92,11 @@ const CohortBuilder: React.FC = () => {
       const patients = await getCohortMembers(cohortId);
       setPatients(patients);
       showSnackbar({
-        title: t('success', 'Success!'),
+        title: t('searchCompleted', 'Search completed'),
         kind: 'success',
         isLowContrast: true,
-        subtitle: t('searchIsCompleted', `Search is completed with ${patients.length} result(s)`, {
-          numOfResults: patients.length,
+        subtitle: t('noOfResultsFound', '{{count}} results found', {
+          count: patients.length,
         }),
       });
     } catch (error) {

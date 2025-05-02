@@ -46,6 +46,7 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({ cohort, onVie
   const launchDeleteCohortModal = (cohortId: string) => {
     const dispose = showModal('delete-cohort-modal', {
       closeModal: () => dispose(),
+      cohortName: cohort.name,
       cohortId,
       onDeleteCohort: handleDeleteCohort,
       size: 'sm',

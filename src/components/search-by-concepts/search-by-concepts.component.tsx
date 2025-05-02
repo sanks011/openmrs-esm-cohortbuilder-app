@@ -246,7 +246,6 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               label={t('withinTheLast', 'Within the last months')}
               invalidText={t('numberIsNotValid', 'Number is not valid')}
               min={0}
-              size="sm"
               value={lastMonths}
               onChange={(event, { value }) => setLastMonths(value)}
             />
@@ -259,7 +258,6 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               data-testid="last-days"
               invalidText={t('numberIsNotValid', 'Number is not valid')}
               min={0}
-              size="sm"
               value={lastDays}
               onChange={(event, { value }) => setLastDays(value)}
             />

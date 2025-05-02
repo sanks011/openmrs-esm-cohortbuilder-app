@@ -48,6 +48,7 @@ describe('Test the saved cohorts options', () => {
     expect(mockShowModal).toHaveBeenCalledWith('delete-cohort-modal', {
       closeModal: expect.any(Function),
       cohortId: cohort.id,
+      cohortName: cohort.name,
       onDeleteCohort: expect.any(Function),
       size: 'sm',
     });

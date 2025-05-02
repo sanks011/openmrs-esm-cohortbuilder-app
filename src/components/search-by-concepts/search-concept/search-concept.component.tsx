@@ -1,6 +1,6 @@
 import React, { type Dispatch, type SetStateAction, useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import debounce from 'lodash-es/debounce';
+import { useTranslation } from 'react-i18next';
 import { Column, InlineLoading, Search, Tile } from '@carbon/react';
 import { type Concept } from '../../../types';
 import { getConcepts } from './search-concept.resource';
@@ -104,14 +104,14 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({ concept, searchTex
         {concept && (
           <span className={styles.text}>
             {t('patientsWithObservationsWhoseAnswerIs', 'Patients with observations whose answer is')}
-            <strong> "{concept.name}".</strong>
+            <strong> "{concept.name}"</strong>.
           </span>
         )}
         {searchText && isSearchResultsEmpty && (
           <Tile>
             <span>
               {t('noMatchingConcepts', 'No concepts were found that match')}
-              <strong> "{searchText}".</strong>
+              <strong> "{searchText}"</strong>.
             </span>
           </Tile>
         )}

@@ -6,11 +6,11 @@ import styles from './delete-cohort.scss';
 
 interface DeleteCohortModalProps {
   closeModal: () => void;
+  cohortName: string;
   onDeleteCohort: () => void;
-  patientUuid?: string;
 }
 
-const DeleteCohortModal: React.FC<DeleteCohortModalProps> = ({ closeModal, onDeleteCohort }) => {
+const DeleteCohortModal: React.FC<DeleteCohortModalProps> = ({ closeModal, cohortName, onDeleteCohort }) => {
   const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -26,9 +26,7 @@ const DeleteCohortModal: React.FC<DeleteCohortModalProps> = ({ closeModal, onDel
       <ModalHeader closeModal={closeModal} title={t('deleteCohort', 'Delete cohort')} />
       <ModalBody>
         <p>
-          {t('deleteCohortModalText', 'Are you sure you want to delete ${cohortName}?', {
-            cohortName: 'Cohort Name',
-          })}
+          {t('deleteCohortModalText', 'Are you sure you want to delete the cohort')} <strong>"{cohortName}"</strong>?
         </p>
       </ModalBody>
       <ModalFooter>

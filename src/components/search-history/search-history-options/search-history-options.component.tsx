@@ -78,7 +78,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
         downloadCSV(patients, description);
         break;
       case Option.DELETE:
-        launchClearSearchHistoryModal();
+        launchClearItemFromSearchHistoryModal();
         break;
     }
   };
@@ -134,10 +134,10 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
     });
   };
 
-  const launchClearSearchHistoryModal = () => {
-    const dispose = showModal('clear-search-history-modal', {
+  const launchClearItemFromSearchHistoryModal = () => {
+    const dispose = showModal('clear-item-from-search-history-modal', {
       closeModal: () => dispose(),
-      onClear: handleDeleteSearchItem,
+      onRemove: handleDeleteSearchItem,
       searchItemName: searchItem?.description,
       size: 'sm',
     });

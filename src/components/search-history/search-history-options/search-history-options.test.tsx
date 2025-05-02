@@ -113,9 +113,9 @@ describe('Test the search history options', () => {
 
     await user.click(screen.getByRole('button', { name: /options/i }));
     await user.click(screen.getByText(/delete/i));
-    expect(mockShowModal).toHaveBeenCalledWith('clear-search-history-modal', {
+    expect(mockShowModal).toHaveBeenCalledWith('clear-item-from-search-history-modal', {
       closeModal: expect.any(Function),
-      onClear: expect.any(Function),
+      onRemove: expect.any(Function),
       searchItemName: searchHistoryItem.description,
       size: 'sm',
     });

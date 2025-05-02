@@ -7,9 +7,14 @@ import styles from './modals.scss';
 interface ClearItemFromSearchHistoryModalProps {
   closeModal: () => void;
   onRemove: () => void;
+  searchItemName: string;
 }
 
-const ClearItemFromSearchHistoryModal: React.FC<ClearItemFromSearchHistoryModalProps> = ({ closeModal, onRemove }) => {
+const ClearItemFromSearchHistoryModal: React.FC<ClearItemFromSearchHistoryModalProps> = ({
+  closeModal,
+  onRemove,
+  searchItemName,
+}) => {
   const { t } = useTranslation();
   const [isRemovingSearchItem, setIsRemovingSearchItem] = useState(false);
 
@@ -25,6 +30,10 @@ const ClearItemFromSearchHistoryModal: React.FC<ClearItemFromSearchHistoryModalP
       <ModalHeader closeModal={closeModal} title={t('clearItemFromHistory', 'Clear item from search history')} />
       <ModalBody>
         <p>{t('removeItemFromSearchHistory', 'Are you sure you want to remove this item from the search history?')}</p>
+        <br />
+        <p>
+          <strong>"{searchItemName}"</strong>
+        </p>
       </ModalBody>
       <ModalFooter>
         <Button kind="secondary" onClick={closeModal}>
