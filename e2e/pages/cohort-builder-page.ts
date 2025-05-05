@@ -13,7 +13,7 @@ export class CohortBuilderPage {
   readonly conceptsTab = () => this.page.getByRole('tab', { name: 'Concepts' });
   readonly compositionTab = () => this.page.getByRole('tab', { name: 'Composition' });
   readonly personAttributesTab = () => this.page.getByRole('tab', { name: 'Person Attributes' });
-  readonly successNotification = () => this.page.getByText('Success!');
+  readonly successNotification = () => this.page.getByText(/search completed/i);
 
   async gotoCohortBuilder() {
     await this.page.goto('cohort-builder');
