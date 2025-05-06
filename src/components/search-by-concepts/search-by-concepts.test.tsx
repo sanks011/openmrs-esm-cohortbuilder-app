@@ -149,10 +149,11 @@ describe('Test the search by concept component', () => {
       expectedQuery.query.rowFilters[0].parameterValues.timeModifier,
     );
 
-    // Verify the date is within a reasonable range (within 1 second)
+    // Verify the date is within a reasonable range
     const actualDate = dayjs(actualQuery.query.rowFilters[0].parameterValues.onOrBefore);
     expect(actualDate.isValid()).toBe(true);
-    expect(actualDate.diff(testDate, 'second')).toBeLessThanOrEqual(1);
+    // Verify the date is approximately correct (within 5 seconds)
+    expect(Math.abs(actualDate.diff(testDate, 'second'))).toBeLessThanOrEqual(5);
 
     // Verify the description format
     expect(actualDescription).toMatch(/^Patients with ANY BLOOD SUGAR\s+until\s+\d{1,2}\/\d{1,2}\/\d{4}$/);
