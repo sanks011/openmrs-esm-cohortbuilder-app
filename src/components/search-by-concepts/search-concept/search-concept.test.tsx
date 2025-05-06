@@ -26,7 +26,7 @@ const concepts: Concept[] = [
     answers: [],
     hl7Abbrev: 'ZZ',
     name: 'Whole blood sample',
-    description: 'Blood samples not seperated into subtypes',
+    description: 'Blood samples not separated into subtypes',
     datatype: {
       uuid: '8d4a4c94-c2cc-11de-8d13-0010c6dffd0f',
       name: 'N/A',

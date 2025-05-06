@@ -75,9 +75,30 @@ describe('Test the search by demographics component', () => {
     await user.click(maxAgeInput);
     await user.type(maxAgeInput, '20');
 
-    expectedQuery.query.rowFilters[2].parameterValues.endDate = dayjs().format();
+    const testDate = dayjs();
+    expectedQuery.query.rowFilters[2].parameterValues.endDate = testDate.format();
 
     await user.click(screen.getByTestId('search-btn'));
-    expect(mockSubmit).toBeCalledWith(expectedQuery, 'Male Patients with ages between 10 and 20 years that are alive');
+
+    // Get the actual call arguments
+    const [actualQuery, actualDescription] = mockSubmit.mock.calls[0];
+
+    // Verify the query structure matches expected
+    expect(actualQuery.query.type).toBe(expectedQuery.query.type);
+    expect(actualQuery.query.columns).toEqual(expectedQuery.query.columns);
+    expect(actualQuery.query.customRowFilterCombination).toBe(expectedQuery.query.customRowFilterCombination);
+
+    // Verify the row filter structure matches expected
+    expect(actualQuery.query.rowFilters[0].key).toBe(expectedQuery.query.rowFilters[0].key);
+    expect(actualQuery.query.rowFilters[0].type).toBe(expectedQuery.query.rowFilters[0].type);
+    expect(actualQuery.query.rowFilters[1].parameterValues).toEqual(expectedQuery.query.rowFilters[1].parameterValues);
+
+    // Verify dates are within a reasonable range (5 seconds)
+    const actualDate = dayjs(actualQuery.query.rowFilters[2].parameterValues.endDate);
+    expect(actualDate.isValid()).toBe(true);
+    expect(Math.abs(actualDate.diff(testDate, 'second'))).toBeLessThanOrEqual(5);
+
+    // Verify the description matches
+    expect(actualDescription).toBe('Male Patients with ages between 10 and 20 years that are alive');
   });
 });

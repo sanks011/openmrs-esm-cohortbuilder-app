@@ -113,6 +113,10 @@ describe('Test the search by concept component', () => {
       expect(mockGetConcepts).toBeCalledWith('blood sugar');
     });
 
+    await waitFor(() => {
+      expect(screen.getByText('BLOOD SUGAR')).toBeInTheDocument();
+    });
+
     await user.click(screen.getByText('BLOOD SUGAR'));
     await user.click(lastDaysInput);
     await user.clear(lastDaysInput);
@@ -121,7 +125,6 @@ describe('Test the search by concept component', () => {
     await user.clear(lastMonthsInput);
     await user.type(lastMonthsInput, '4');
     await user.click(screen.getByText('Any'));
-
     await user.click(screen.getByTestId('search-btn'));
 
     // Verify the mock was called
