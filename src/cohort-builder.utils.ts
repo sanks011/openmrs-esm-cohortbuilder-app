@@ -1,3 +1,4 @@
+import { showToast } from '@openmrs/esm-framework';
 import type { Column, Patient, Query } from './types';
 
 export const composeJson = (searchParameters) => {
@@ -106,16 +107,105 @@ export const addColumnsToDisplay = () => {
   return columnValues;
 };
 
-export const addToHistory = (description: string, patients: Patient[], parameters: {}) => {
-  const oldHistory = JSON.parse(window.sessionStorage.getItem('openmrsHistory'));
-  let newHistory = [];
+const STORAGE_KEY = 'openmrsHistory';
+const MAX_HISTORY_ITEMS = 50; // LRU cache: Keep only most recent 50 searches
+const MAX_PATIENTS_PER_SEARCH = 100; // Limit patient data to prevent storage bloat
 
-  if (oldHistory) {
-    newHistory = [...oldHistory, { description, patients, parameters }];
-  } else {
-    newHistory = [{ description, patients, parameters }];
+/**
+ * Safely adds search to history with comprehensive error handling
+ * Implements LRU cache, quota management, and graceful degradation
+ * @param description - Human-readable description of the search
+ * @param patients - Array of patient results
+ * @param parameters - Search parameters used
+ * @returns boolean - true if successfully saved, false otherwise
+ */
+export const addToHistory = (description: string, patients: Patient[], parameters: {}): boolean => {
+  try {
+    // Validate inputs
+    if (!Array.isArray(patients) || typeof parameters !== 'object') {
+      console.warn('[Cohort Builder] Invalid input to addToHistory');
+      return false;
+    }
+
+    // Limit patient data to prevent storage bloat
+    const limitedPatients = patients.slice(0, MAX_PATIENTS_PER_SEARCH);
+
+    // Safely retrieve existing history
+    let oldHistory: any[] = [];
+    const storedData = window.sessionStorage.getItem(STORAGE_KEY);
+
+    if (storedData) {
+      try {
+        const parsed = JSON.parse(storedData);
+        oldHistory = Array.isArray(parsed) ? parsed : [];
+      } catch (parseError) {
+        console.error('[Cohort Builder] Corrupted history data, resetting:', parseError);
+        // Reset corrupted data
+        window.sessionStorage.removeItem(STORAGE_KEY);
+        oldHistory = [];
+      }
+    }
+
+    // Add new entry with timestamp
+    const newEntry = {
+      description,
+      patients: limitedPatients,
+      parameters,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Implement LRU: Keep only most recent items
+    const newHistory = [...oldHistory, newEntry].slice(-MAX_HISTORY_ITEMS);
+
+    // Try to save with quota handling
+    try {
+      const serialized = JSON.stringify(newHistory);
+
+      // Warn if approaching limits (~4MB threshold)
+      if (serialized.length > 4 * 1024 * 1024) {
+        console.warn('[Cohort Builder] Search history approaching storage limits');
+      }
+
+      window.sessionStorage.setItem(STORAGE_KEY, serialized);
+      return true;
+    } catch (storageError) {
+      if (storageError.name === 'QuotaExceededError') {
+        console.error('[Cohort Builder] Storage quota exceeded, clearing old history');
+
+        // Fallback: Keep only last 10 items
+        const reducedHistory = newHistory.slice(-10);
+        try {
+          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(reducedHistory));
+          showToast({
+            title: 'Search History Limit Reached',
+            kind: 'warning',
+            description: 'Older search history has been cleared to save space.',
+          });
+          return true;
+        } catch (retryError) {
+          // Complete failure - disable history
+          console.error('[Cohort Builder] Cannot save history, disabling feature', retryError);
+          window.sessionStorage.removeItem(STORAGE_KEY);
+          showToast({
+            title: 'Search History Unavailable',
+            kind: 'error',
+            description: 'Unable to save search history. Your searches will still work.',
+          });
+          return false;
+        }
+      }
+      throw storageError; // Re-throw unexpected errors
+    }
+  } catch (error) {
+    // Log and continue - don't break searching if history fails
+    console.error('[Cohort Builder] Failed to add search to history:', error);
+    showToast({
+      title: 'History Error',
+      kind: 'error',
+      description: 'Could not save search to history, but your search completed successfully.',
+    });
+    return false;
   }
-  window.sessionStorage.setItem('openmrsHistory', JSON.stringify(newHistory));
 };
 
 export const formatDate = (dateString: string) => {
