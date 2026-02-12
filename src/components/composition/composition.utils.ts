@@ -23,16 +23,33 @@ export const createCompositionQuery = (compositionQuery: string) => {
 
   searchTokens.forEach((eachToken) => {
     if (eachToken.match(/\d/)) {
-      const history = JSON.parse(window.sessionStorage.getItem('openmrsHistory'));
-      const operandQuery = history[parseInt(eachToken) - 1];
+      try {
+        const storedData = window.sessionStorage.getItem('openmrsHistory');
+        if (!storedData) {
+          return;
+        }
 
-      const jsonRequestObject = operandQuery.parameters;
-      jsonRequestObject.customRowFilterCombination = formatFilterCombination(
-        jsonRequestObject.customRowFilterCombination,
-        query.rowFilters.length,
-      );
-      query.customRowFilterCombination += `(${jsonRequestObject.customRowFilterCombination})`;
-      query.rowFilters = query.rowFilters.concat(jsonRequestObject.rowFilters);
+        const history = JSON.parse(storedData);
+        if (!Array.isArray(history)) {
+          return;
+        }
+
+        const operandQuery = history[parseInt(eachToken) - 1];
+        if (!operandQuery?.parameters) {
+          return;
+        }
+
+        const jsonRequestObject = operandQuery.parameters;
+        jsonRequestObject.customRowFilterCombination = formatFilterCombination(
+          jsonRequestObject.customRowFilterCombination,
+          query.rowFilters.length,
+        );
+        query.customRowFilterCombination += `(${jsonRequestObject.customRowFilterCombination})`;
+        query.rowFilters = query.rowFilters.concat(jsonRequestObject.rowFilters);
+      } catch (error) {
+        // Skip invalid history entry
+        return;
+      }
     } else {
       query.customRowFilterCombination += ` ${eachToken} `;
     }

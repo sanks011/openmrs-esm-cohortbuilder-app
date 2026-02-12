@@ -18,7 +18,6 @@ export const getSearchHistory = (): SearchHistoryItem[] => {
     
     // Validate that parsed data is an array
     if (!Array.isArray(history)) {
-      console.warn('[Cohort Builder] Invalid history data format, resetting');
       window.sessionStorage.removeItem(STORAGE_KEY);
       return [];
     }
@@ -38,12 +37,11 @@ export const getSearchHistory = (): SearchHistoryItem[] => {
     
     return searchHistory;
   } catch (error) {
-    console.error('[Cohort Builder] Error reading search history:', error);
     // Clear corrupted data to prevent repeated errors
     try {
       window.sessionStorage.removeItem(STORAGE_KEY);
     } catch (removeError) {
-      console.error('[Cohort Builder] Error clearing corrupted history:', removeError);
+      // Silent failure - storage access denied
     }
     return [];
   }

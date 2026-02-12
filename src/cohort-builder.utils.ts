@@ -123,7 +123,6 @@ export const addToHistory = (description: string, patients: Patient[], parameter
   try {
     // Validate inputs
     if (!Array.isArray(patients) || typeof parameters !== 'object') {
-      console.warn('[Cohort Builder] Invalid input to addToHistory');
       return false;
     }
 
@@ -139,7 +138,6 @@ export const addToHistory = (description: string, patients: Patient[], parameter
         const parsed = JSON.parse(storedData);
         oldHistory = Array.isArray(parsed) ? parsed : [];
       } catch (parseError) {
-        console.error('[Cohort Builder] Corrupted history data, resetting:', parseError);
         // Reset corrupted data
         window.sessionStorage.removeItem(STORAGE_KEY);
         oldHistory = [];
@@ -161,17 +159,10 @@ export const addToHistory = (description: string, patients: Patient[], parameter
     try {
       const serialized = JSON.stringify(newHistory);
 
-      // Warn if approaching limits (~4MB threshold)
-      if (serialized.length > 4 * 1024 * 1024) {
-        console.warn('[Cohort Builder] Search history approaching storage limits');
-      }
-
       window.sessionStorage.setItem(STORAGE_KEY, serialized);
       return true;
     } catch (storageError) {
       if (storageError.name === 'QuotaExceededError') {
-        console.error('[Cohort Builder] Storage quota exceeded, clearing old history');
-
         // Fallback: Keep only last 10 items
         const reducedHistory = newHistory.slice(-10);
         try {
@@ -184,7 +175,6 @@ export const addToHistory = (description: string, patients: Patient[], parameter
           return true;
         } catch (retryError) {
           // Complete failure - disable history
-          console.error('[Cohort Builder] Cannot save history, disabling feature', retryError);
           window.sessionStorage.removeItem(STORAGE_KEY);
           showToast({
             title: 'Search History Unavailable',
@@ -197,8 +187,7 @@ export const addToHistory = (description: string, patients: Patient[], parameter
       throw storageError; // Re-throw unexpected errors
     }
   } catch (error) {
-    // Log and continue - don't break searching if history fails
-    console.error('[Cohort Builder] Failed to add search to history:', error);
+    // Don't break searching if history fails
     showToast({
       title: 'History Error',
       kind: 'error',
