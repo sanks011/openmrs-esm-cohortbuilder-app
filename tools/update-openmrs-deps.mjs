@@ -1,13 +1,10 @@
 import { execSync } from 'node:child_process';
 
 try {
-  execSync(
-    `yarn up --fixed '@openmrs/esm-framework@next' '@openmrs/esm-patient-common-lib@next' '@openmrs/esm-styleguide@next' 'openmrs@next'`,
-    {
-      stdio: ['ignore', 'inherit', 'inherit'],
-      windowsHide: true,
-    },
-  );
+  execSync(`yarn up --fixed '@openmrs/*@next' 'openmrs@next'`, {
+    stdio: ['ignore', 'inherit', 'inherit'],
+    windowsHide: true,
+  });
 } catch (error) {
   console.error(`Error while updating dependencies: ${error.message ?? error}`);
   process.exit(1);
