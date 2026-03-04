@@ -1,4 +1,5 @@
 import { addColumnsToDisplay } from '../../cohort-builder.utils';
+import { getHistoryFromStorage } from '../../session-storage.utils';
 import type { Query } from '../../types';
 
 export const isCompositionValid = (search: string) => {
@@ -23,33 +24,20 @@ export const createCompositionQuery = (compositionQuery: string) => {
 
   searchTokens.forEach((eachToken) => {
     if (eachToken.match(/\d/)) {
-      try {
-        const storedData = window.sessionStorage.getItem('openmrsHistory');
-        if (!storedData) {
-          return;
-        }
+      const history = getHistoryFromStorage();
+      const operandQuery = history[parseInt(eachToken) - 1];
 
-        const history = JSON.parse(storedData);
-        if (!Array.isArray(history)) {
-          return;
-        }
-
-        const operandQuery = history[parseInt(eachToken) - 1];
-        if (!operandQuery?.parameters) {
-          return;
-        }
-
-        const jsonRequestObject = operandQuery.parameters;
-        jsonRequestObject.customRowFilterCombination = formatFilterCombination(
-          jsonRequestObject.customRowFilterCombination,
-          query.rowFilters.length,
-        );
-        query.customRowFilterCombination += `(${jsonRequestObject.customRowFilterCombination})`;
-        query.rowFilters = query.rowFilters.concat(jsonRequestObject.rowFilters);
-      } catch (error) {
-        // Skip invalid history entry
+      if (!operandQuery?.parameters) {
         return;
       }
+
+      const jsonRequestObject = operandQuery.parameters;
+      jsonRequestObject.customRowFilterCombination = formatFilterCombination(
+        jsonRequestObject.customRowFilterCombination,
+        query.rowFilters.length,
+      );
+      query.customRowFilterCombination += `(${jsonRequestObject.customRowFilterCombination})`;
+      query.rowFilters = query.rowFilters.concat(jsonRequestObject.rowFilters);
     } else {
       query.customRowFilterCombination += ` ${eachToken} `;
     }

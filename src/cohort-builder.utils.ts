@@ -1,5 +1,6 @@
 import { showToast } from '@openmrs/esm-framework';
 import type { Column, Patient, Query } from './types';
+import { getHistoryFromStorage, saveHistoryToStorage, safelyRemoveSessionStorage, STORAGE_KEY } from './session-storage.utils';
 
 export const composeJson = (searchParameters) => {
   const query: Query = {
@@ -107,44 +108,25 @@ export const addColumnsToDisplay = () => {
   return columnValues;
 };
 
-const STORAGE_KEY = 'openmrsHistory';
-const MAX_HISTORY_ITEMS = 50; // LRU cache: Keep only most recent 50 searches
-const MAX_PATIENTS_PER_SEARCH = 100; // Limit patient data to prevent storage bloat
+const MAX_HISTORY_ITEMS = 50;
+const MAX_PATIENTS_PER_SEARCH = 100;
 
 /**
- * Safely adds search to history with comprehensive error handling
- * Implements LRU cache, quota management, and graceful degradation
+ * Adds a search entry to the session history with LRU eviction and quota handling.
  * @param description - Human-readable description of the search
  * @param patients - Array of patient results
  * @param parameters - Search parameters used
- * @returns boolean - true if successfully saved, false otherwise
+ * @returns true if successfully saved, false otherwise
  */
 export const addToHistory = (description: string, patients: Patient[], parameters: {}): boolean => {
   try {
-    // Validate inputs
-    if (!Array.isArray(patients) || typeof parameters !== 'object') {
+    if (!Array.isArray(patients) || typeof parameters !== 'object' || parameters === null) {
       return false;
     }
 
-    // Limit patient data to prevent storage bloat
     const limitedPatients = patients.slice(0, MAX_PATIENTS_PER_SEARCH);
+    const oldHistory = getHistoryFromStorage();
 
-    // Safely retrieve existing history
-    let oldHistory: any[] = [];
-    const storedData = window.sessionStorage.getItem(STORAGE_KEY);
-
-    if (storedData) {
-      try {
-        const parsed = JSON.parse(storedData);
-        oldHistory = Array.isArray(parsed) ? parsed : [];
-      } catch (parseError) {
-        // Reset corrupted data
-        window.sessionStorage.removeItem(STORAGE_KEY);
-        oldHistory = [];
-      }
-    }
-
-    // Add new entry with timestamp
     const newEntry = {
       description,
       patients: limitedPatients,
@@ -152,42 +134,10 @@ export const addToHistory = (description: string, patients: Patient[], parameter
       timestamp: new Date().toISOString(),
     };
 
-    // Implement LRU: Keep only most recent items
     const newHistory = [...oldHistory, newEntry].slice(-MAX_HISTORY_ITEMS);
 
-    // Try to save with quota handling
-    try {
-      const serialized = JSON.stringify(newHistory);
-
-      window.sessionStorage.setItem(STORAGE_KEY, serialized);
-      return true;
-    } catch (storageError) {
-      if (storageError.name === 'QuotaExceededError') {
-        // Fallback: Keep only last 10 items
-        const reducedHistory = newHistory.slice(-10);
-        try {
-          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(reducedHistory));
-          showToast({
-            title: 'Search History Limit Reached',
-            kind: 'warning',
-            description: 'Older search history has been cleared to save space.',
-          });
-          return true;
-        } catch (retryError) {
-          // Complete failure - disable history
-          window.sessionStorage.removeItem(STORAGE_KEY);
-          showToast({
-            title: 'Search History Unavailable',
-            kind: 'error',
-            description: 'Unable to save search history. Your searches will still work.',
-          });
-          return false;
-        }
-      }
-      throw storageError; // Re-throw unexpected errors
-    }
+    return saveHistoryToStorage(newHistory);
   } catch (error) {
-    // Don't break searching if history fails
     showToast({
       title: 'History Error',
       kind: 'error',

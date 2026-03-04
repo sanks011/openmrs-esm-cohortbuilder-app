@@ -1,48 +1,23 @@
 import { type SearchHistoryItem } from '../../types';
-
-const STORAGE_KEY = 'openmrsHistory';
+import { getHistoryFromStorage } from '../../session-storage.utils';
 
 /**
- * Safely retrieves search history from sessionStorage with error handling
- * @returns Array of search history items, or empty array if data is corrupted/unavailable
+ * Retrieves search history from sessionStorage with error handling.
+ * @returns Array of search history items, or empty array if data is corrupted/unavailable.
  */
 export const getSearchHistory = (): SearchHistoryItem[] => {
-  try {
-    const storedData = window.sessionStorage.getItem(STORAGE_KEY);
-    
-    if (!storedData) {
-      return [];
-    }
+  const history = getHistoryFromStorage();
+  const searchHistory: SearchHistoryItem[] = [];
 
-    const history = JSON.parse(storedData);
-    
-    // Validate that parsed data is an array
-    if (!Array.isArray(history)) {
-      window.sessionStorage.removeItem(STORAGE_KEY);
-      return [];
+  history.forEach((historyItem, index) => {
+    if (historyItem?.patients && Array.isArray(historyItem.patients)) {
+      searchHistory.push({
+        ...historyItem,
+        id: (index + 1).toString(),
+        results: historyItem.patients.length,
+      });
     }
+  });
 
-    const searchHistory: SearchHistoryItem[] = [];
-    
-    history.forEach((historyItem, index) => {
-      // Validate each history item has required properties
-      if (historyItem && historyItem.patients && Array.isArray(historyItem.patients)) {
-        searchHistory.push({
-          ...historyItem,
-          id: (index + 1).toString(),
-          results: historyItem.patients.length,
-        });
-      }
-    });
-    
-    return searchHistory;
-  } catch (error) {
-    // Clear corrupted data to prevent repeated errors
-    try {
-      window.sessionStorage.removeItem(STORAGE_KEY);
-    } catch (removeError) {
-      // Silent failure - storage access denied
-    }
-    return [];
-  }
+  return searchHistory;
 };
